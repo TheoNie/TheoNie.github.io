@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>关于WebView-我踩过的那些坑 | 学而无涯</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="最近在做项目的时候，接触到了一些关于WebView的一些坑，感觉有必要记录下来。事情的起因是WebView中插入的一段视频，在切换到后台后，视频依然有声音。这个体验是很不好的，需要优化掉，解决办法是为WebView添加了生命周期。之前的项目中，对于生命周期的控制一向是不考虑的，出于优化的心态，为WebView添加了全套的生命周期。而一切大坑，都从此开始。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于WebView-我踩过的那些坑">
+<meta property="og:url" content="http://theonie.github.io/2016/01/26/关于WebView-我踩过的那些坑/index.html">
+<meta property="og:site_name" content="学而无涯">
+<meta property="og:description" content="最近在做项目的时候，接触到了一些关于WebView的一些坑，感觉有必要记录下来。事情的起因是WebView中插入的一段视频，在切换到后台后，视频依然有声音。这个体验是很不好的，需要优化掉，解决办法是为WebView添加了生命周期。之前的项目中，对于生命周期的控制一向是不考虑的，出于优化的心态，为WebView添加了全套的生命周期。而一切大坑，都从此开始。">
+<meta property="og:updated_time" content="2016-02-01T07:11:36.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="关于WebView-我踩过的那些坑">
+<meta name="twitter:description" content="最近在做项目的时候，接触到了一些关于WebView的一些坑，感觉有必要记录下来。事情的起因是WebView中插入的一段视频，在切换到后台后，视频依然有声音。这个体验是很不好的，需要优化掉，解决办法是为WebView添加了生命周期。之前的项目中，对于生命周期的控制一向是不考虑的，出于优化的心态，为WebView添加了全套的生命周期。而一切大坑，都从此开始。">
+  
+    <link rel="alternative" href="/atom.xml" title="学而无涯" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+  <link rel="stylesheet" href="//cdn.bootcss.com/animate.css/3.5.0/animate.min.css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  
+  
+      <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  
+  <script>
+      var yiliaConfig = {
+          fancybox: true,
+          animate: true,
+          isHome: false,
+          isPost: true,
+          isArchive: false,
+          isTag: false,
+          isCategory: false,
+          open_in_new: false
+      }
+  </script>
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            
+            <img lazy-src="/picture.jpg" class="js-avatar">
+            
+        </a>
+
+        <hgroup>
+          <h1 class="header-author"><a href="/">Theo Nie</a></h1>
+        </hgroup>
+
+        
+                
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/我的博客搭建日记/">我的博客搭建日记</a></li>
+                        
+                            <li><a href="/tags/奇葩BUG/">奇葩BUG</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <li id="Email"><a class="Email" target="_blank" href="/theonie.mainmail@gmail.com" title="Email"></a></li>
+                            
+                                <li id="GitHub"><a class="GitHub" target="_blank" href="#" title="GitHub"></a></li>
+                            
+                                <li id="RSS"><a class="RSS" target="_blank" href="/atom.xml" title="RSS"></a></li>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <a href="/tags/奇葩BUG/" style="font-size: 20px;">奇葩BUG</a> <a href="/tags/我的博客搭建日记/" style="font-size: 10px;">我的博客搭建日记</a>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a target="_blank" class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a target="_blank" class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a target="_blank" class="main-nav-link switch-friends-link" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">伪文艺程序员</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">Theo Nie</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                
+                    <img lazy-src="/picture.jpg" class="js-avatar">
+                
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">Theo Nie</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/我的博客搭建日记/">我的博客搭建日记</a></li>
+                
+                    <li><a href="/tags/奇葩BUG/">奇葩BUG</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <li id="Email"><a class="Email" target="_blank" href="/theonie.mainmail@gmail.com" title="Email"></a></li>
+                            
+                                <li id="GitHub"><a class="GitHub" target="_blank" href="#" title="GitHub"></a></li>
+                            
+                                <li id="RSS"><a class="RSS" target="_blank" href="/atom.xml" title="RSS"></a></li>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+</nav>
+      <div class="body-wrap"><article id="post-关于WebView-我踩过的那些坑" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/01/26/关于WebView-我踩过的那些坑/" class="article-date">
+      <time datetime="2016-01-26T05:07:58.000Z" itemprop="datePublished">2016-01-26</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      关于WebView-我踩过的那些坑
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/奇葩BUG/">奇葩BUG</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>最近在做项目的时候，接触到了一些关于WebView的一些坑，感觉有必要记录下来。<br>事情的起因是WebView中插入的一段视频，在切换到后台后，视频依然有声音。这个体验是很不好的，需要优化掉，解决办法是为WebView添加了生命周期。之前的项目中，对于生命周期的控制一向是不考虑的，出于优化的心态，为WebView添加了全套的生命周期。而一切大坑，都从此开始。<br><a id="more"></a></p>
+<h2 id="1-WebView切换到后台仍有声音"><a href="#1-WebView切换到后台仍有声音" class="headerlink" title="1.WebView切换到后台仍有声音"></a>1.WebView切换到后台仍有声音</h2><p>切换到后台仍有声音的解决办法其实很简单，只要在activity的onPause()中处理下WebView的onPause生命周期即可，这里关于WebView的onPause生命周期只有3.0以上的版本才有，如果为了适配3.0以下的版本，实现代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onPause</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (webView != <span class="keyword">null</span></span><br><span class="line">            &amp;&amp; Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.HONEYCOMB) &#123;</span><br><span class="line">        webView.onPause();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">super</span>.onPause();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>当然，这只是BUG的开始，在添加onPause方法的同时，为了处理WebView的优化问题，为WebView显式添加了一个destroy()</p>
+<h2 id="2-java-lang-NullPointerException"><a href="#2-java-lang-NullPointerException" class="headerlink" title="2.java.lang.NullPointerException"></a>2.java.lang.NullPointerException</h2><p>在网络回调时，报出了java.lang.NullPointerException的异常，初看很诧异，后来发现调用的方法中有一个WebView。而这个BUG的形成原因是在网络回调成功的时候，实际当前activity已经销毁，也执行了WebView的destroy方法，WebView已经不存在了，但此时网络回调成功，执行了一遍WebView的操作，造成了空指针。处理办法只是在网络回调成功时判断一下activity是否为空以及是否结束就可以了，如果为空或结束，网络回调就不要继续执行下去。</p>
+<h2 id="3-Receiver-not-registered-android-widget-ZoomButtonsController"><a href="#3-Receiver-not-registered-android-widget-ZoomButtonsController" class="headerlink" title="3.Receiver not registered: android.widget.ZoomButtonsController"></a>3.Receiver not registered: android.widget.ZoomButtonsController</h2><p>这个BUG其实困扰我很久，在Google上也是查了很多方案，其实最终的BUG点在哪里呢？原因是代码里有<code>webView.getSettings().setBuiltInZoomControls(true);</code>，而且在activity的onDestroy()中又为WebView进行了destroy()方法，这两个方法结合就造成了这个问题。这个方法是WebView中一个控制缩放按钮显示的方法，在使用中，如果用户点出了缩放按钮，而同时又关闭了这个页面，此时WebView被销毁，相应的，作为WebView子集的缩放按钮的监听事件也被销毁，这时，在所有都销毁的情况下，缩放按钮想要消失，但是它的监听事件已经不在了，所以报出了异常。<br>关于这个Bug，改的第一版是对WebView设置为不可见，但是修改后，发现BUG仍然存在，所以缩放按钮即使作为WebView的一个子集，但是对整体的隐藏仍然不起效。</p>
+<p>##3.A WebView method was called on thread ‘Timer-2’. All WebView methods must be called on the same thread.<br>所以有了第二版修改，但是第二版修改显然引起了一个更大范围的问题，先粘贴一下第二版修改的代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">long</span> timeout = ViewConfiguration.getZoomControlsTimeout();</span><br><span class="line">        <span class="keyword">new</span> Timer().schedule(<span class="keyword">new</span> TimerTask() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="keyword">if</span>(webView != <span class="keyword">null</span>)&#123;</span><br><span class="line">                    webView.destroy();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, timeout);</span><br></pre></td></tr></table></figure></p>
+<p>修改的思路是既然缩放控件需要时间去消失，那么我的程序就给你这个时间，我等你消失了再销毁。看起来思路还是挺好的，但是它又出现了问题，而且影响范围很大，但是因为是子线程中出现的问题，所以倒是不会造成程序崩溃。<br>Google的一下，问题原因是在子线程中对UI控件进行了操作，原来WebView的销毁也是一定要在UI线程中操作的，那么是否我使用Handler进行操作就可以保证线程安全呢？<br>因为影响范围甚大，暂时不做相关的项目代码处理，也无法验证是否在UI线程中操作就完全没有问题，或许又出现其他坑来等着我。最后的解决办法是：我删掉了WebView的destroy()。也许这算是我对BUG的一个妥协，但是我还是会继续调研下去，希望能找到一个比较好的解决方案。</p>
+<h3 id="2016-2-1更新"><a href="#2016-2-1更新" class="headerlink" title="2016.2.1更新"></a>2016.2.1更新</h3><p>在听云中发现所有提示WebView不能在子线程中操作的都是4.3的系统，而在4.3之后的系统都是提示WebView的创建和销毁必须在同一线程内使用，而4.3之前的系统则并没有任何报错信息。</p>
+<h2 id="关于WebView"><a href="#关于WebView" class="headerlink" title="关于WebView"></a>关于WebView</h2><p>其实关于WebView的坑真的很多，在我删除掉destroy后，我一直在想一个问题，我是否就不去在意不销毁它所带来的内存泄露和后台耗电呢？也许没有BUG，但这是项目真正需要的么？但是个人能力还不够，工作半年，踩过很多坑，一点点严谨，也一点点在BUG中成长，希望关于WebView，真的某一天有一些好的优化思路。<br>此篇博客保持长期更新，立志踩遍无数坑。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2016/01/26/关于WebView-我踩过的那些坑/">关于WebView-我踩过的那些坑</a></p>
+        <p><span>文章作者:</span><a href="/" title="访问 Theo Nie 的个人博客">Theo Nie</a></p>
+        <p><span>发布时间:</span>2016年01月26日 - 13时07分</p>
+        <p><span>最后更新:</span>2016年02月01日 - 15时11分</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2016/01/26/关于WebView-我踩过的那些坑/" title="关于WebView-我踩过的那些坑">http://theonie.github.io/2016/01/26/关于WebView-我踩过的那些坑/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://theonie.github.io/2016/01/26/关于WebView-我踩过的那些坑/　　作者: Theo Nie" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script src="/js/clipboard.min.js"></script>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" title="中国大陆 (CC BY-NC-SA 3.0 CN)" target = "_blank">"署名-非商用-相同方式共享 3.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2016/01/11/android.view.InflateException的问题/">
+                    android.view.InflateException的问题
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-WebView切换到后台仍有声音"><span class="toc-number">1.</span> <span class="toc-text">1.WebView切换到后台仍有声音</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-java-lang-NullPointerException"><span class="toc-number">2.</span> <span class="toc-text">2.java.lang.NullPointerException</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Receiver-not-registered-android-widget-ZoomButtonsController"><span class="toc-number">3.</span> <span class="toc-text">3.Receiver not registered: android.widget.ZoomButtonsController</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2016-2-1更新"><span class="toc-number">3.1.</span> <span class="toc-text">2016.2.1更新</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#关于WebView"><span class="toc-number">4.</span> <span class="toc-text">关于WebView</span></a></li></ol>
+</div>
+<style>
+    .left-col .switch-btn {
+        display: none;
+    }
+    .left-col .switch-area {
+        display: none;
+    }
+</style>
+
+<input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script>
+    var valueHide = "隐藏目录";
+    var valueShow = "显示目录";
+
+    if ($(".left-col").is(":hidden")) {
+        $("#tocButton").attr("value", valueShow);
+    }
+
+    $("#tocButton").click(function() {
+        if ($("#toc").is(":hidden")) {
+            $("#tocButton").attr("value", valueHide);
+            $("#toc").slideDown(320);
+            $(".switch-btn, .switch-area").fadeOut(300);
+        }
+        else {
+            $("#tocButton").attr("value", valueShow);
+            $("#toc").slideUp(350);
+            $(".switch-btn, .switch-area").fadeIn(500);
+        }
+    })
+
+    if ($(".toc").length < 1) {
+        $("#toc, #tocButton").hide();
+        $(".switch-btn, .switch-area").show();
+    }
+</script>
+
+
+
+
+<div class="share">
+    <div class="bdsharebuttonbox">
+    <a href="#" class="bds_more" data-cmd="more"></a>
+    <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+    <a href="#" class="bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+    <a href="#" class="bds_copy" data-cmd="copy" title="复制网址"></a>
+    <a href="#" class="bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+    <a href="#" class="bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+    </div>
+    <script>
+        window._bd_share_config={
+            "common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+    </script>
+</div>
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2016/01/11/android.view.InflateException的问题/" title="下一篇: android.view.InflateException的问题">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2016/01/26/关于WebView-我踩过的那些坑/">关于WebView-我踩过的那些坑</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/11/android.view.InflateException的问题/">android.view.InflateException的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/04/hexo博客快速搭建入门篇/">hexo博客快速搭建(入门篇)</a></li></ul>
+    <script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+    <script>
+        $(".post-list").addClass("toc-article");
+        $(".post-list-item a").attr("target","_blank");
+        $("#post-nav-button > a:nth-child(2)").click(function() {
+            $(".fa-bars, .fa-times").toggle();
+            $(".post-list").toggle(300);
+            if ($(".toc").length > 0) {
+                $("#toc, #tocButton").toggle(200, function() {
+                    if ($(".switch-area").is(":visible")) {
+                        $("#toc, .switch-btn, .switch-area").toggle();
+                        $("#tocButton").attr("value", valueHide);
+                        }
+                    })
+            }
+            else {
+                $(".switch-btn, .switch-area").fadeToggle(300);
+            }
+        })
+    </script>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                &copy; 2016 Theo Nie
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的静态博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减双栏 Hexo 博客主题">Yelee</a> by MOxFIVE
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" >本站到访数: 
+                            <span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>, </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit">本页阅读量: 
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    <script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+
+<script>
+    $(document).ready(function() {
+        if ($("#comments").length < 1) {
+            $("#scroll > a:nth-child(2)").hide();
+        };
+    })
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

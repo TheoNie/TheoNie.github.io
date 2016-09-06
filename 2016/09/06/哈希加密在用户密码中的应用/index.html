@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>哈希加密在用户密码中的应用 | 学而无涯</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="哈希函数又叫散列函数或者散列算法，是一种从任何一种数据中创建小的数字指纹的方法。哈希函数把消息或数据压缩成摘要，使得数据量变小，将数据的格式固定下来。该函数将数据打乱混合，重新创建一个叫做哈希值的指纹。哈希值通常用来表示一个短的随机字母和数字组成的字符串。好的哈希函数在输入域中很少出现散列冲突。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="哈希加密在用户密码中的应用">
+<meta property="og:url" content="http://theonie.github.io/2016/09/06/哈希加密在用户密码中的应用/index.html">
+<meta property="og:site_name" content="学而无涯">
+<meta property="og:description" content="哈希函数又叫散列函数或者散列算法，是一种从任何一种数据中创建小的数字指纹的方法。哈希函数把消息或数据压缩成摘要，使得数据量变小，将数据的格式固定下来。该函数将数据打乱混合，重新创建一个叫做哈希值的指纹。哈希值通常用来表示一个短的随机字母和数字组成的字符串。好的哈希函数在输入域中很少出现散列冲突。">
+<meta property="og:updated_time" content="2016-09-06T08:23:26.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="哈希加密在用户密码中的应用">
+<meta name="twitter:description" content="哈希函数又叫散列函数或者散列算法，是一种从任何一种数据中创建小的数字指纹的方法。哈希函数把消息或数据压缩成摘要，使得数据量变小，将数据的格式固定下来。该函数将数据打乱混合，重新创建一个叫做哈希值的指纹。哈希值通常用来表示一个短的随机字母和数字组成的字符串。好的哈希函数在输入域中很少出现散列冲突。">
+  
+    <link rel="alternative" href="/atom.xml" title="学而无涯" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+  <link rel="stylesheet" href="//cdn.bootcss.com/animate.css/3.5.0/animate.min.css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  
+  
+      <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  
+  <script>
+      var yiliaConfig = {
+          fancybox: true,
+          animate: true,
+          isHome: false,
+          isPost: true,
+          isArchive: false,
+          isTag: false,
+          isCategory: false,
+          open_in_new: false
+      }
+  </script>
+</head>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            
+            <img lazy-src="/picture.jpg" class="js-avatar">
+            
+        </a>
+
+        <hgroup>
+          <h1 class="header-author"><a href="/">Theo Nie</a></h1>
+        </hgroup>
+
+        
+                
+
+
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">主页</a></li>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/tags/我的博客搭建日记/">我的博客搭建日记</a></li>
+                        
+                            <li><a href="/tags/奇葩BUG/">奇葩BUG</a></li>
+                        
+                            <li><a href="/tags/密码学相关/">密码学相关</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <li id="Email"><a class="Email" target="_blank" href="/theonie.mainmail@gmail.com" title="Email"></a></li>
+                            
+                                <li id="GitHub"><a class="GitHub" target="_blank" href="#" title="GitHub"></a></li>
+                            
+                                <li id="RSS"><a class="RSS" target="_blank" href="/atom.xml" title="RSS"></a></li>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <a href="/tags/奇葩BUG/" style="font-size: 20px;">奇葩BUG</a> <a href="/tags/密码学相关/" style="font-size: 10px;">密码学相关</a> <a href="/tags/我的博客搭建日记/" style="font-size: 20px;">我的博客搭建日记</a>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a target="_blank" class="main-nav-link switch-friends-link" href="https://hexo.io">Hexo</a>
+                    
+                      <a target="_blank" class="main-nav-link switch-friends-link" href="https://pages.github.com/">GitHub</a>
+                    
+                      <a target="_blank" class="main-nav-link switch-friends-link" href="http://moxfive.xyz/">MOxFIVE</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">伪文艺程序员</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">Theo Nie</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                
+                    <img lazy-src="/picture.jpg" class="js-avatar">
+                
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">Theo Nie</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">主页</a></li>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/tags/我的博客搭建日记/">我的博客搭建日记</a></li>
+                
+                    <li><a href="/tags/奇葩BUG/">奇葩BUG</a></li>
+                
+                    <li><a href="/tags/密码学相关/">密码学相关</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <li id="Email"><a class="Email" target="_blank" href="/theonie.mainmail@gmail.com" title="Email"></a></li>
+                            
+                                <li id="GitHub"><a class="GitHub" target="_blank" href="#" title="GitHub"></a></li>
+                            
+                                <li id="RSS"><a class="RSS" target="_blank" href="/atom.xml" title="RSS"></a></li>
+                            
+                        </ul>
+            </nav>
+        </header>                
+    </div>
+</nav>
+      <div class="body-wrap"><article id="post-哈希加密在用户密码中的应用" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/2016/09/06/哈希加密在用户密码中的应用/" class="article-date">
+      <time datetime="2016-09-06T08:16:56.000Z" itemprop="datePublished">2016-09-06</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      哈希加密在用户密码中的应用
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/密码学相关/">密码学相关</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>哈希函数又叫散列函数或者散列算法，是一种从任何一种数据中创建小的数字指纹的方法。哈希函数把消息或数据压缩成摘要，使得数据量变小，将数据的格式固定下来。该函数将数据打乱混合，重新创建一个叫做哈希值的指纹。哈希值通常用来表示一个短的随机字母和数字组成的字符串。好的哈希函数在输入域中很少出现散列冲突。<br><a id="more"></a><br>哈希函数与其他加密算法的最大区别就是没有密钥。</p>
+<h4 id="应用范围："><a href="#应用范围：" class="headerlink" title="应用范围："></a>应用范围：</h4><p>1.数字签名<br>2.用户验证</p>
+<h4 id="安全性要求"><a href="#安全性要求" class="headerlink" title="安全性要求"></a>安全性要求</h4><p>因为哈希函数没有密钥，也根本没有对消息进行加密，所以很多攻击情况都是针对哈希函数的弱点进行的，为了保证安全性，哈希函数就需要具有以下的几个属性。</p>
+<h5 id="1-抗第一原像性（或单向性）"><a href="#1-抗第一原像性（或单向性）" class="headerlink" title="1.抗第一原像性（或单向性）"></a>1.抗第一原像性（或单向性）</h5><p>哈希函数必须具有单向性，即给定一个哈希输出Z，找到满足z=h(x)的输入消息x在计算上必须是不可行的。换句话说，给定一个指纹，我们不能找到对应的信息。</p>
+<h5 id="2-抗第二原像性（或弱抗冲突性）"><a href="#2-抗第二原像性（或弱抗冲突性）" class="headerlink" title="2.抗第二原像性（或弱抗冲突性）"></a>2.抗第二原像性（或弱抗冲突性）</h5><h5 id="3-抗冲突性（或强抗冲突性）"><a href="#3-抗冲突性（或强抗冲突性）" class="headerlink" title="3.抗冲突性（或强抗冲突性）"></a>3.抗冲突性（或强抗冲突性）</h5><p>对使用哈希的签名而言，确保两个不同的消息不会映射到相同的值是非常重要的，这意味着使用相同的哈希值创建两个不同的消息是不可行的。这种冲突分为两类，一种情况是，给定了消息1试图找到消息2，这也称为抗第二原像性，第二种情况是，攻击者可以自由的选择消息1和消息2，这就是强抗冲突性。<br>第二原像性对基本签名很重要，假如Bob对消息1做了哈希签名，而Oscar能够找到另一个跟消息1的散列值结果一样的消息，那么就能进行替换攻击了。<br>理论上，我们希望找到一个不存在弱冲突的哈希函数，但是实际上这是不可能的。</p>
+<p>给定M，计算上无法找到M’，满足H(M)=H(M’) ，此谓弱抗冲突性；计算上也难以寻找一对任意的M和M’，使满足H(M)=H(M’) ，此谓强抗冲突性。要求”强抗冲突性”主要是为了防范所谓”生日攻击(birthday attack)”，在一个10人的团体中，你能找到和你生日相同的人的概率是2.4%，而在同一团体中，有2人生日相同的概率是11.7%。类似的，当预映射的空间很大的情况下，算法必须有足够的强度来保证不能轻易找到”相同生日”的人。</p>
+<ul>
+<li>鸽巢原理：<br>如果拥有100个鸽子，但是只有99个鸽笼，那么至少有一个鸽笼会放两个鸽子。由于每个哈希函数拥有固定长度的输出，比如N位，所以可能的输出值只有2^n个。此外，由于哈希函数输入数目没有限制，所以一定会存在多个输入哈希得到相同输出值的情况。实际上，任意随机输入映射到每个哈希输出值是等概率的，因此所有输出值都存在弱冲突。<br>同理可以用生日悖论来验证。</li>
+<li>哈希函数的家族：<br>md4,md5<br>sha-1,sha-2,sha-3<h4 id="消息验证码（MAC"><a href="#消息验证码（MAC" class="headerlink" title="消息验证码（MAC)"></a>消息验证码（MAC)</h4>消息验证码又称为密钥的哈希函数。<br>使用消息验证码的动机通常为：<br>Alice和bob想确保他们能检测到传输过程中对消息x的任何修改。</li>
+</ul>
+<h5 id="消息验证码的属性："><a href="#消息验证码的属性：" class="headerlink" title="消息验证码的属性："></a>消息验证码的属性：</h5><ul>
+<li>密码学校验和:<br>给定一个消息，消息验证码可以生成一个密码学安全的验证标签。</li>
+<li>对称性:签名方和验证方共享一个密钥。</li>
+<li>任意的消息大小</li>
+<li>固定的输出长度</li>
+<li>消息完整性:传输过程中对消息的任意修改都会被发现</li>
+<li>消息验证:接收方可以确定消息的来源</li>
+<li>不具有不可否认性:<br>因为接收方和发送方用的是同一个密钥，所以无法向第三方的中立法官去证明最初的消息验证码来自于谁。<h5 id="消息验证码的两种实现"><a href="#消息验证码的两种实现" class="headerlink" title="消息验证码的两种实现"></a>消息验证码的两种实现</h5><h6 id="1-基于分组密码"><a href="#1-基于分组密码" class="headerlink" title="1.基于分组密码"></a>1.基于分组密码</h6><h6 id="2-基于哈希函数-HMAC"><a href="#2-基于哈希函数-HMAC" class="headerlink" title="2.基于哈希函数(HMAC)"></a>2.基于哈希函数(HMAC)</h6>基于哈希函数的消息验证码的基本思想就是，将密钥和消息一起进行哈希。<br>步骤：<br>(1) 在密钥key后面添加0来创建一个长为B(64字节)的字符串（str）；<br>(2) 将上一步生成的字符串(str) 与ipad（0x36）做异或运算，形成结果字符串（istr）<br>(3) 将数据流data添加到第二步的结果字符串(istr)的末尾<br>(4) 对第三步生成的字符串(istr)进行哈希<br>(5) 将第一步生成的字符串(str) 与opad（0x5c）做异或运算，形成结果字符串（ostr）<br>(6) 再将第四步的结果(istr)添加到第五步的结果字符串（ostr）的末尾<br>(7) 对第6步生成的数据流（ostr）进行哈希，输出结果(out)</li>
+</ul>
+<h4 id="设计用户密码保存体系的姿势"><a href="#设计用户密码保存体系的姿势" class="headerlink" title="设计用户密码保存体系的姿势"></a>设计用户密码保存体系的姿势</h4><h5 id="著名的安全事件"><a href="#著名的安全事件" class="headerlink" title="著名的安全事件"></a>著名的安全事件</h5><ul>
+<li>2011年12月，国内最大的程序员社区 CSDN 遭拖库，600万个账户信息泄露</li>
+<li>2014年3月，携程旅行网的系统存技术漏洞，漏洞可能导致用户的姓名、身份证号码、银行卡类别、银行卡卡号、银行卡CVV码以及银行卡6位Bin泄露</li>
+<li>2014年5月，小米论坛涉及800万用户信息遭泄露，信息包括用户名、密码、注册IP、邮箱等</li>
+<li>2014年12月，12306遭撞库攻击，13万用户信息泄露，包括用户账号、明文密码、身份证、邮箱等敏感信息</li>
+<li>2015年10月，网易邮箱遭攻击，近5亿条用户信息被泄露，包括用户名、密码、密码保护信息、登陆IP以及用户生日等多个原始信息</li>
+</ul>
+<h5 id="防范方法"><a href="#防范方法" class="headerlink" title="防范方法"></a>防范方法</h5><ul>
+<li>正确的方式保存密码</li>
+<li>正确的方式传输数据</li>
+<li>正确的方式加密敏感信息</li>
+<li>正确的方式对数据进行监控，备份</li>
+</ul>
+<h5 id="正确的方式保存密码"><a href="#正确的方式保存密码" class="headerlink" title="正确的方式保存密码"></a>正确的方式保存密码</h5><h6 id="1-低级错误：明文保存密码"><a href="#1-低级错误：明文保存密码" class="headerlink" title="1.低级错误：明文保存密码"></a>1.低级错误：明文保存密码</h6><p>一旦被拖库，所有的密码直接暴露。</p>
+<h6 id="2-低级错误：可逆加密密码"><a href="#2-低级错误：可逆加密密码" class="headerlink" title="2.低级错误：可逆加密密码"></a>2.低级错误：可逆加密密码</h6><p>可逆的加密密码如果被入侵者找到了加密规律，也是很容易破解的。</p>
+<h6 id="3-错误方法：md5加密密码"><a href="#3-错误方法：md5加密密码" class="headerlink" title="3.错误方法：md5加密密码"></a>3.错误方法：md5加密密码</h6><p>2015年网易邮箱被攻击泄漏的密码曾被怀疑为使用md5加密，是可以破解的。</p>
+<h6 id="4-正确方法：加盐hash保存密码"><a href="#4-正确方法：加盐hash保存密码" class="headerlink" title="4.正确方法：加盐hash保存密码"></a>4.正确方法：加盐hash保存密码</h6><h5 id="几种简单的破解哈希函数的方法"><a href="#几种简单的破解哈希函数的方法" class="headerlink" title="几种简单的破解哈希函数的方法"></a>几种简单的破解哈希函数的方法</h5><h6 id="字典攻击和暴力攻击："><a href="#字典攻击和暴力攻击：" class="headerlink" title="字典攻击和暴力攻击："></a>字典攻击和暴力攻击：</h6><p>说白了，这种方法就是去猜。<br>字典攻击需要使用一个字典文件，它包含单词、短语、常用密码以及其他可能用作密码的字符串。其中每个词都是进过哈希后储存的，用它们和密码哈希比对，如果相同，这个词就是密码.<br>而暴力攻击其实就是枚举，枚举每一个可能的密码组合。<br>我们无法阻止这种破解方式，只能降低这种破解方式的效率。<br>一个足够安全的哈希加密函数只有这种破解方式。</p>
+<h6 id="查表法"><a href="#查表法" class="headerlink" title="查表法"></a>查表法</h6><p>查表法对于破解一系列算法相同的哈希值有着无与伦比的效率。主要的思想就是预计算密码字典中的每个密码，然后把哈希值和对应的密码储存到一个用于快速查询的数据结构中。一个良好的查表实现可以每秒进行数百次哈希查询，即使表中储存了几十亿个哈希值。</p>
+<h6 id="反向查表法"><a href="#反向查表法" class="headerlink" title="反向查表法"></a>反向查表法</h6><p>这种方法可以使攻击者同时对多个哈希值发起字典攻击或暴力攻击，而不需要预先计算出一个查询表。</p>
+<p>首先攻击者构造一个基于密码-用户名的一对多的表，当然数据需要从某个已经被入侵的数据库获得，然后猜测一系列哈希值并且从表中查找拥有此密码的用户。通常许多用户可能有着相同的密码，因此这种攻击方式也显得尤为有效。</p>
+<h6 id="彩虹表"><a href="#彩虹表" class="headerlink" title="彩虹表"></a>彩虹表</h6><p>彩虹表是一种在时间和空间的消耗上找寻平衡的破解技术。它和查表法很类似，但是为了使查询表占用的空间更小而牺牲了破解速度。因为它更小，于是我们可以在一定的空间内存储更多的哈希值，从而使攻击更加有效。</p>
+<h5 id="加盐哈希"><a href="#加盐哈希" class="headerlink" title="加盐哈希"></a>加盐哈希</h5><p>盐（Salt），在密码学中，是指通过在密码任意固定位置插入特定的字符串，让散列后的结果和使用原始密码的散列结果不相符，这种过程称之为“加盐”。<br>重复的盐值也是可以破解的，不要使用重复的盐值。<br>短盐值也不要使用。</p>
+<h5 id="＝＝比较符的安全问题"><a href="#＝＝比较符的安全问题" class="headerlink" title="＝＝比较符的安全问题"></a>＝＝比较符的安全问题</h5><p>PHP是一种弱类型语言，如果使用==比较符进行比较时，会进行类型转换。例如0E前缀后面加纯数字的字符串就会被当作科学计数法的0.这就造成了加密后如果有0E为前缀，并且后面都为纯数字的就会出现相等情况。</p>
+
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/2016/09/06/哈希加密在用户密码中的应用/">哈希加密在用户密码中的应用</a></p>
+        <p><span>文章作者:</span><a href="/" title="访问 Theo Nie 的个人博客">Theo Nie</a></p>
+        <p><span>发布时间:</span>2016年09月06日 - 16时16分</p>
+        <p><span>最后更新:</span>2016年09月06日 - 16时23分</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/2016/09/06/哈希加密在用户密码中的应用/" title="哈希加密在用户密码中的应用">http://theonie.github.io/2016/09/06/哈希加密在用户密码中的应用/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://theonie.github.io/2016/09/06/哈希加密在用户密码中的应用/　　作者: Theo Nie" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script src="/js/clipboard.min.js"></script>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" title="中国大陆 (CC BY-NC-SA 3.0 CN)" target = "_blank">"署名-非商用-相同方式共享 3.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="/2016/06/16/hexo博客mac版安装及迁移/">
+                    hexo博客mac版安装及迁移
+                </a>
+            </div>
+        
+    </nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#应用范围："><span class="toc-number">1.</span> <span class="toc-text">应用范围：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#安全性要求"><span class="toc-number">2.</span> <span class="toc-text">安全性要求</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-抗第一原像性（或单向性）"><span class="toc-number">2.1.</span> <span class="toc-text">1.抗第一原像性（或单向性）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-抗第二原像性（或弱抗冲突性）"><span class="toc-number">2.2.</span> <span class="toc-text">2.抗第二原像性（或弱抗冲突性）</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-抗冲突性（或强抗冲突性）"><span class="toc-number">2.3.</span> <span class="toc-text">3.抗冲突性（或强抗冲突性）</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#消息验证码（MAC"><span class="toc-number">3.</span> <span class="toc-text">消息验证码（MAC)</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#消息验证码的属性："><span class="toc-number">3.1.</span> <span class="toc-text">消息验证码的属性：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#消息验证码的两种实现"><span class="toc-number">3.2.</span> <span class="toc-text">消息验证码的两种实现</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#1-基于分组密码"><span class="toc-number">3.2.1.</span> <span class="toc-text">1.基于分组密码</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#2-基于哈希函数-HMAC"><span class="toc-number">3.2.2.</span> <span class="toc-text">2.基于哈希函数(HMAC)</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#设计用户密码保存体系的姿势"><span class="toc-number">4.</span> <span class="toc-text">设计用户密码保存体系的姿势</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#著名的安全事件"><span class="toc-number">4.1.</span> <span class="toc-text">著名的安全事件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#防范方法"><span class="toc-number">4.2.</span> <span class="toc-text">防范方法</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#正确的方式保存密码"><span class="toc-number">4.3.</span> <span class="toc-text">正确的方式保存密码</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#1-低级错误：明文保存密码"><span class="toc-number">4.3.1.</span> <span class="toc-text">1.低级错误：明文保存密码</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#2-低级错误：可逆加密密码"><span class="toc-number">4.3.2.</span> <span class="toc-text">2.低级错误：可逆加密密码</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#3-错误方法：md5加密密码"><span class="toc-number">4.3.3.</span> <span class="toc-text">3.错误方法：md5加密密码</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-正确方法：加盐hash保存密码"><span class="toc-number">4.3.4.</span> <span class="toc-text">4.正确方法：加盐hash保存密码</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#几种简单的破解哈希函数的方法"><span class="toc-number">4.4.</span> <span class="toc-text">几种简单的破解哈希函数的方法</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#字典攻击和暴力攻击："><span class="toc-number">4.4.1.</span> <span class="toc-text">字典攻击和暴力攻击：</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#查表法"><span class="toc-number">4.4.2.</span> <span class="toc-text">查表法</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#反向查表法"><span class="toc-number">4.4.3.</span> <span class="toc-text">反向查表法</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#彩虹表"><span class="toc-number">4.4.4.</span> <span class="toc-text">彩虹表</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#加盐哈希"><span class="toc-number">4.5.</span> <span class="toc-text">加盐哈希</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#＝＝比较符的安全问题"><span class="toc-number">4.6.</span> <span class="toc-text">＝＝比较符的安全问题</span></a></li></ol></li></ol>
+</div>
+<style>
+    .left-col .switch-btn {
+        display: none;
+    }
+    .left-col .switch-area {
+        display: none;
+    }
+</style>
+
+<input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+<script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script>
+    var valueHide = "隐藏目录";
+    var valueShow = "显示目录";
+
+    if ($(".left-col").is(":hidden")) {
+        $("#tocButton").attr("value", valueShow);
+    }
+
+    $("#tocButton").click(function() {
+        if ($("#toc").is(":hidden")) {
+            $("#tocButton").attr("value", valueHide);
+            $("#toc").slideDown(320);
+            $(".switch-btn, .switch-area").fadeOut(300);
+        }
+        else {
+            $("#tocButton").attr("value", valueShow);
+            $("#toc").slideUp(350);
+            $(".switch-btn, .switch-area").fadeIn(500);
+        }
+    })
+
+    if ($(".toc").length < 1) {
+        $("#toc, #tocButton").hide();
+        $(".switch-btn, .switch-area").show();
+    }
+</script>
+
+
+
+
+<div class="share">
+    <div class="bdsharebuttonbox">
+    <a href="#" class="bds_more" data-cmd="more"></a>
+    <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+    <a href="#" class="bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
+    <a href="#" class="bds_copy" data-cmd="copy" title="复制网址"></a>
+    <a href="#" class="bds_mail" data-cmd="mail" title="通过邮件分享"></a>
+    <a href="#" class="bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
+    </div>
+    <script>
+        window._bd_share_config={
+            "common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+    </script>
+</div>
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="/2016/06/16/hexo博客mac版安装及迁移/" title="下一篇: hexo博客mac版安装及迁移">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2016/09/06/哈希加密在用户密码中的应用/">哈希加密在用户密码中的应用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/16/hexo博客mac版安装及迁移/">hexo博客mac版安装及迁移</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/26/关于WebView-我踩过的那些坑/">关于WebView-我踩过的那些坑</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/11/android.view.InflateException的问题/">android.view.InflateException的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/04/hexo博客快速搭建入门篇/">hexo博客快速搭建(入门篇)</a></li></ul>
+    <script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+    <script>
+        $(".post-list").addClass("toc-article");
+        $(".post-list-item a").attr("target","_blank");
+        $("#post-nav-button > a:nth-child(2)").click(function() {
+            $(".fa-bars, .fa-times").toggle();
+            $(".post-list").toggle(300);
+            if ($(".toc").length > 0) {
+                $("#toc, #tocButton").toggle(200, function() {
+                    if ($(".switch-area").is(":visible")) {
+                        $("#toc, .switch-btn, .switch-area").toggle();
+                        $("#tocButton").attr("value", valueHide);
+                        }
+                    })
+            }
+            else {
+                $(".switch-btn, .switch-area").fadeToggle(300);
+            }
+        })
+    </script>
+
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                &copy; 2016 Theo Nie
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank" title="快速、简洁且高效的静态博客框架">Hexo</a>  Theme <a href="https://github.com/MOxFIVE/hexo-theme-yelee" target="_blank" title="简而不减双栏 Hexo 博客主题">Yelee</a> by MOxFIVE
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" >本站到访数: 
+                            <span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>, </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit">本页阅读量: 
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+    </div>
+    <script src="http://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var iPad = window.navigator.userAgent.indexOf('iPad');
+            if (iPad > -1 || $(".left-col").css("display") === "none") {
+                var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
+                var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));
+                $("body").css({"background-color": bgColorList[bgColor], "background-size": "cover"});
+            }
+            else {
+                var backgroundnum = 5;
+                var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+                $("body").css({"background": backgroundimg, "background-attachment": "fixed", "background-size": "cover"});
+            }
+        })
+    </script>
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#" title="返回顶部"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments" title="查看评论"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer" title="转到底部"><i class="fa fa-arrow-down"></i></a>
+</div>
+
+<script>
+    $(document).ready(function() {
+        if ($("#comments").length < 1) {
+            $("#scroll > a:nth-child(2)").hide();
+        };
+    })
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+  </div>
+</body>
+</html>

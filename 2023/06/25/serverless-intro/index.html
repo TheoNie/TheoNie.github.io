@@ -1,0 +1,234 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>Serverless 入门 | 学而无涯</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=1.0.0"><link rel="stylesheet" type="text/css" href="https://unpkg.com/normalize.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/pure-min.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/grids-responsive-min.css"><link rel="stylesheet" href="https://unpkg.com/font-awesome@4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="https://unpkg.com/jquery/dist/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="https://unpkg.com/clipboard/dist/clipboard.min.js"></script><script type="text/javascript" src="https://unpkg.com/toastr/build/toastr.min.js"></script><link rel="stylesheet" href="https://unpkg.com/toastr/build/toastr.min.css"><div class="darkmode-toggle">🌓</div><script>var prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
+var toggle = document.querySelector('.darkmode-toggle');
+var html = document.querySelector('html');
+
+html.dataset.dark = localStorage.dark || prefersDarkMode.matches;
+
+toggle.addEventListener('click', () => {
+localStorage.dark = !(html.dataset.dark == 'true');
+html.dataset.dark = localStorage.dark;
+});</script><meta name="generator" content="Hexo 6.2.0"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Serverless 入门</h1><a id="logo" href="/.">学而无涯</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Serverless 入门</h1><div class="post-meta">2023-06-25<span> | </span><span class="category"><a href="/categories/Cloud-Native/">Cloud Native</a></span></div><div class="post-content"><p>一提到 Serverless，经常会有两种极端的意见。</p>
+<p>一种是觉得这玩意儿很神：不用管服务器，按量付费，自动扩缩容，听上去像云计算世界的终极答案。</p>
+<p>另一种则更直接：名字都叫 Serverless 了，结果底层明明还是有服务器，这不就是个营销词？</p>
+<p>这两种理解都有其道理，但都只看到了表层。</p>
+<p>Serverless 真正有意思的地方，不在于“有没有服务器”，而在于：<strong>它改变了开发者和基础设施打交道的方式。</strong></p>
+<p>对于大多数业务团队来说，重点不再是我要申请多少机器、配多大规格、怎么扩容、怎么扛峰值，而是把代码和业务逻辑交出去，让平台按请求来接住它。</p>
+<h2 id="什么是-Serverless？"><a href="#什么是-Serverless？" class="headerlink" title="什么是 Serverless？"></a>什么是 Serverless？</h2><p>先说一句最不绕弯的话：</p>
+<p><strong>Serverless 不是没有服务器，而是你不再以服务器为核心来组织应用。</strong></p>
+<p>从执行、部署到计费，Serverless 提供的是一种更“托管化”的模型：</p>
+<ul>
+<li>资源按需分配</li>
+<li>基础设施由平台接管</li>
+<li>计费按实际调用发生</li>
+<li>应用可以随着流量自动扩缩容</li>
+</ul>
+<p>也就是说，你不需要再把主要精力放在机器和容量规划上，而是更多关注代码本身。</p>
+<img src="/2023/06/25/serverless-intro/serverless-overview.png" class="" title="Serverless 概念示意图">
+
+<h3 id="狭义和广义的-Serverless"><a href="#狭义和广义的-Serverless" class="headerlink" title="狭义和广义的 Serverless"></a>狭义和广义的 Serverless</h3><p>如果按行业里常见的说法来分，Serverless 大致有两个层面。</p>
+<h4 id="狭义-Serverless"><a href="#狭义-Serverless" class="headerlink" title="狭义 Serverless"></a>狭义 Serverless</h4><p>通常指：</p>
+<ul>
+<li><strong>FaaS（Function as a Service）</strong></li>
+<li><strong>BaaS（Backend as a Service）</strong></li>
+</ul>
+<p>前者让你把业务能力拆成函数，后者把数据库、鉴权、存储、消息等基础能力服务化。</p>
+<h4 id="广义-Serverless"><a href="#广义-Serverless" class="headerlink" title="广义 Serverless"></a>广义 Serverless</h4><p>它更像一种架构思想：</p>
+<p><strong>在构建和运行软件时，尽量不把“管理服务器”作为开发团队的核心负担。</strong></p>
+<p>这也是为什么今天很多容器平台、边缘平台、托管工作流，虽然不一定都长着同一张脸，但都多少沾点 Serverless 的味道。</p>
+<img src="/2023/06/25/serverless-intro/serverless-faas-baas.png" class="" title="FaaS 与 BaaS 关系图">
+
+<h2 id="Serverless-和传统架构，到底差在哪？"><a href="#Serverless-和传统架构，到底差在哪？" class="headerlink" title="Serverless 和传统架构，到底差在哪？"></a>Serverless 和传统架构，到底差在哪？</h2><p>如果你以前主要做的是传统 Web 服务，那理解 Serverless 最快的方法，就是拿它和熟悉的架构做对照。</p>
+<h3 id="1-资源分配方式不同"><a href="#1-资源分配方式不同" class="headerlink" title="1. 资源分配方式不同"></a>1. 资源分配方式不同</h3><p>传统架构里，你要先准备资源，再承接流量。</p>
+<p>Serverless 则反过来：<strong>先有请求，再由平台按需分配资源。</strong></p>
+<p>这件事的直接影响是，开发者不再需要对“机器规模”做过多前置判断。</p>
+<h3 id="2-计费逻辑不同"><a href="#2-计费逻辑不同" class="headerlink" title="2. 计费逻辑不同"></a>2. 计费逻辑不同</h3><p>传统架构按机器、实例、包年包月或固定规格收费比较常见。哪怕流量不大，资源也常常得一直挂着。</p>
+<p>Serverless 更强调按量付费，粒度甚至可以细到毫秒级。真正有调用才有费用，没有请求时，理论上甚至可以缩到 0。</p>
+<h3 id="3-弹性能力不同"><a href="#3-弹性能力不同" class="headerlink" title="3. 弹性能力不同"></a>3. 弹性能力不同</h3><p>传统应用当然也能扩缩容，但那往往需要你自己搭一整套机制，或者至少得配置清楚监控、阈值、策略和实例池。</p>
+<p>Serverless 把这套复杂性尽量往平台层压。业务方只需要描述应用，扩缩容这件事由平台兜底。</p>
+<h3 id="4-应用拆分方式不同"><a href="#4-应用拆分方式不同" class="headerlink" title="4. 应用拆分方式不同"></a>4. 应用拆分方式不同</h3><p>Serverless 更强调函数化、事件驱动和无状态。一个业务不一定是一整坨长期常驻服务，而可能被拆成多个对事件作出响应的函数单元。</p>
+<img src="/2023/06/25/serverless-intro/serverless-vs-traditional-1.png" class="" title="Serverless 与传统架构对比图一">
+
+<img src="/2023/06/25/serverless-intro/serverless-vs-traditional-2.png" class="" title="Serverless 与传统架构对比图二">
+
+<h2 id="为什么这几年大家都在谈-Serverless？"><a href="#为什么这几年大家都在谈-Serverless？" class="headerlink" title="为什么这几年大家都在谈 Serverless？"></a>为什么这几年大家都在谈 Serverless？</h2><p>因为它确实解决了一些老问题，而且解决得很直接。</p>
+<h2 id="Serverless-的优势，不只是“省机器”"><a href="#Serverless-的优势，不只是“省机器”" class="headerlink" title="Serverless 的优势，不只是“省机器”"></a>Serverless 的优势，不只是“省机器”</h2><h3 id="第一，团队不用把精力浪费在一堆底层脏活上"><a href="#第一，团队不用把精力浪费在一堆底层脏活上" class="headerlink" title="第一，团队不用把精力浪费在一堆底层脏活上"></a>第一，团队不用把精力浪费在一堆底层脏活上</h3><p>容错、容灾、自动扩容、日志、运行环境托管，这些事情在传统模式下都要有人操心。Serverless 的价值之一，就是尽量把这些事情平台化。</p>
+<p>这并不意味着运维消失了，而是说很多重复劳动可以被统一抽走。</p>
+<h3 id="第二，弹性是真的更自然"><a href="#第二，弹性是真的更自然" class="headerlink" title="第二，弹性是真的更自然"></a>第二，弹性是真的更自然</h3><p>很多业务最大的成本，不是高并发本身，而是你必须为了偶发高峰长期预留资源。</p>
+<p>Serverless 的优势在于：高峰来了能扩，没流量时又能缩，资源利用率明显更高。</p>
+<h3 id="第三，试错成本更低"><a href="#第三，试错成本更低" class="headerlink" title="第三，试错成本更低"></a>第三，试错成本更低</h3><p>无论是小团队做新产品，还是成熟业务做新功能，Serverless 都很适合拿来快速试验。</p>
+<p>你不必先搭出一整套重型基础设施，很多时候只需要先把核心逻辑跑起来。</p>
+<h3 id="第四，更适合事件驱动型系统"><a href="#第四，更适合事件驱动型系统" class="headerlink" title="第四，更适合事件驱动型系统"></a>第四，更适合事件驱动型系统</h3><p>凡是“来一个事件，处理一次”的场景，Serverless 都天然合拍。它不要求应用必须像传统服务那样一直待命。</p>
+<h2 id="什么场景适合用-Serverless？"><a href="#什么场景适合用-Serverless？" class="headerlink" title="什么场景适合用 Serverless？"></a>什么场景适合用 Serverless？</h2><p>Serverless 不是万能药，但它非常适合一批典型场景。</p>
+<p>比如：</p>
+<ul>
+<li>Web 应用</li>
+<li>小程序后端</li>
+<li>物联网事件处理</li>
+<li>多媒体任务，比如转码、图片处理</li>
+<li>数据实时分析</li>
+<li>批处理异步任务</li>
+<li>定时任务</li>
+<li>API 代理层</li>
+<li>边缘计算场景</li>
+<li>服务编排</li>
+</ul>
+<h3 id="一个很典型的例子：图片处理"><a href="#一个很典型的例子：图片处理" class="headerlink" title="一个很典型的例子：图片处理"></a>一个很典型的例子：图片处理</h3><p>以微博这类高并发图片场景为例，用户上传原图后，平台并不一定提前生成所有规格图片，而是可以在请求到来时，通过函数从对象存储拉取原图，再按不同终端动态加工并返回。</p>
+<p>这种模式特别适合波峰波谷明显、处理逻辑相对独立的业务。</p>
+<img src="/2023/06/25/serverless-intro/weibo-case.png" class="" title="微博图片处理案例图">
+
+<h3 id="再比如实时协作和内容转换"><a href="#再比如实时协作和内容转换" class="headerlink" title="再比如实时协作和内容转换"></a>再比如实时协作和内容转换</h3><p>像石墨文档那类多人实时编辑场景，流量峰值往往极其短促，但对延迟又非常敏感。Serverless 可以把部分处理逻辑放到函数里，让平台去接住瞬时波峰。</p>
+<p>而语雀这类内容转换场景，则很适合把高风险、CPU 密集或依赖复杂第三方软件的处理逻辑放入函数隔离执行。这样既能把风险隔开，也能避免长期养一组大集群。</p>
+<h2 id="Serverless-的核心概念，最绕不过去的是函数生命周期"><a href="#Serverless-的核心概念，最绕不过去的是函数生命周期" class="headerlink" title="Serverless 的核心概念，最绕不过去的是函数生命周期"></a>Serverless 的核心概念，最绕不过去的是函数生命周期</h2><p>很多人刚用 Serverless，会把它理解成“函数上传上去就行”。</p>
+<p>但平台层真正麻烦的地方，是函数实例的生命周期管理。</p>
+<p>从函数被创建、初始化，到进入可用状态，再到闲置和回收，这个过程直接决定了请求延迟、成本和资源利用率。</p>
+<img src="/2023/06/25/serverless-intro/function-lifecycle.png" class="" title="函数生命周期图">
+
+<h2 id="为什么冷启动总被反复提？"><a href="#为什么冷启动总被反复提？" class="headerlink" title="为什么冷启动总被反复提？"></a>为什么冷启动总被反复提？</h2><p>因为这是 Serverless 最典型的体验问题。</p>
+<p>所谓冷启动，本质上就是：<strong>当没有现成可用实例时，平台得先把执行环境准备出来，然后你的代码才能真正开始跑。</strong></p>
+<p>这个准备过程可能包括：</p>
+<ul>
+<li>调度资源</li>
+<li>创建容器</li>
+<li>拉镜像</li>
+<li>下载代码</li>
+<li>初始化运行时</li>
+<li>打通网络</li>
+<li>执行用户初始化逻辑</li>
+</ul>
+<p>如果这些步骤叠在一起，第一次请求的延迟就会非常明显。</p>
+<img src="/2023/06/25/serverless-intro/cold-start.png" class="" title="冷启动示意图">
+
+<h2 id="冷启动到底怎么优化？"><a href="#冷启动到底怎么优化？" class="headerlink" title="冷启动到底怎么优化？"></a>冷启动到底怎么优化？</h2><p>这事基本可以拆成四层看。</p>
+<h3 id="1-资源调度和容器创建优化"><a href="#1-资源调度和容器创建优化" class="headerlink" title="1. 资源调度和容器创建优化"></a>1. 资源调度和容器创建优化</h3><p>这属于平台层能力。</p>
+<p>常见手段包括：</p>
+<ul>
+<li>镜像按需加载，避免全量拉取</li>
+<li>P2P 加速分发镜像</li>
+<li>多镜像仓库</li>
+<li>预留容器池</li>
+</ul>
+<h3 id="2-代码和依赖下载优化"><a href="#2-代码和依赖下载优化" class="headerlink" title="2. 代码和依赖下载优化"></a>2. 代码和依赖下载优化</h3><p>这部分和用户代码关系更大。</p>
+<p>最直观的方法是：</p>
+<ul>
+<li>控制代码包大小</li>
+<li>尽量压缩依赖</li>
+<li>把高频依赖做内置化或层化处理</li>
+</ul>
+<h3 id="3-网络初始化优化"><a href="#3-网络初始化优化" class="headerlink" title="3. 网络初始化优化"></a>3. 网络初始化优化</h3><p>比如打通 VPC 的过程，本身就可能引入明显时延。</p>
+<h3 id="4-运行时和用户初始化优化"><a href="#4-运行时和用户初始化优化" class="headerlink" title="4. 运行时和用户初始化优化"></a>4. 运行时和用户初始化优化</h3><p>这部分经常被忽略，但影响并不小。</p>
+<p>比如：</p>
+<ul>
+<li>选择合适的运行时</li>
+<li>减少初始化时的重操作</li>
+<li>对延迟敏感场景使用预留实例</li>
+<li>用定时任务提前唤醒实例</li>
+<li>对大数据拉取场景合理使用缓存</li>
+</ul>
+<h2 id="不同语言的冷启动表现，差异真的很大"><a href="#不同语言的冷启动表现，差异真的很大" class="headerlink" title="不同语言的冷启动表现，差异真的很大"></a>不同语言的冷启动表现，差异真的很大</h2><p>这也是很多团队真正落地后才开始有体感的地方。</p>
+<p>不同运行时的冷启动表现差异很明显。像 Node.js、Python、PHP 这类语言，一般在函数计算场景中启动更轻；而 Java、.NET 这类运行时，初始化路径往往更重。</p>
+<p>这不意味着某种语言不能做 Serverless，而是说：<strong>技术栈选择会直接影响你对延迟和成本的权衡。</strong></p>
+<img src="/2023/06/25/serverless-intro/cold-start-nodejs.png" class="" title="Node.js 等语言冷启动对比图">
+
+<img src="/2023/06/25/serverless-intro/cold-start-golang.png" class="" title="Golang&#x2F;Java&#x2F;.NET 冷启动对比图">
+
+<h2 id="依赖层为什么重要？"><a href="#依赖层为什么重要？" class="headerlink" title="依赖层为什么重要？"></a>依赖层为什么重要？</h2><p>如果多个函数都依赖同一批库，最笨的做法就是每个函数都把依赖打进去。这样会导致：</p>
+<ul>
+<li>包越来越大</li>
+<li>构建越来越慢</li>
+<li>重复存储越来越多</li>
+<li>出错概率越来越高</li>
+</ul>
+<p>把公共依赖抽成层之后，至少有三个好处：</p>
+<ol>
+<li>函数包更小</li>
+<li>构建过程更干净</li>
+<li>多个函数之间可以复用，减少浪费</li>
+</ol>
+<img src="/2023/06/25/serverless-intro/dependency-layer.png" class="" title="公共依赖层示意图">
+
+<h2 id="触发器，是-Serverless-真正接入业务的入口"><a href="#触发器，是-Serverless-真正接入业务的入口" class="headerlink" title="触发器，是 Serverless 真正接入业务的入口"></a>触发器，是 Serverless 真正接入业务的入口</h2><p>很多人以为 Serverless 只是“写个函数然后手动调”。其实在真正的生产场景里，触发器才是函数和外部世界连接起来的关键。</p>
+<p>本质上，触发器就是事件驱动的连接器。</p>
+<p>它可以来自：</p>
+<ul>
+<li>HTTP 请求</li>
+<li>对象存储事件</li>
+<li>消息队列</li>
+<li>定时任务</li>
+<li>事件总线</li>
+<li>云产品事件</li>
+</ul>
+<p>从调用方式看，它也可以分成：</p>
+<ul>
+<li><strong>同步调用</strong>：处理完直接返回结果</li>
+<li><strong>异步调用</strong>：事件先入队，平台保证可靠处理</li>
+</ul>
+<img src="/2023/06/25/serverless-intro/trigger-overview.png" class="" title="触发器概览图">
+
+<h2 id="运行时不是细节，它会影响整个体验"><a href="#运行时不是细节，它会影响整个体验" class="headerlink" title="运行时不是细节，它会影响整个体验"></a>运行时不是细节，它会影响整个体验</h2><p>运行时决定了程序真正执行时所依赖的环境。</p>
+<p>你可以把它理解成函数的底座：</p>
+<ul>
+<li>用什么语言跑</li>
+<li>初始化成本高不高</li>
+<li>能不能很好支持现有依赖</li>
+<li>性能天花板在哪</li>
+</ul>
+<p>这也是为什么同样是 Serverless，不同技术栈做出来的体验会差很多。选择运行时，不能只看团队熟不熟，还得看启动性能、依赖复杂度和业务时延要求。</p>
+<img src="/2023/06/25/serverless-intro/runtime-golang.png" class="" title="Golang 运行时示意图">
+
+<h2 id="扩缩容是-Serverless-最核心的系统能力之一"><a href="#扩缩容是-Serverless-最核心的系统能力之一" class="headerlink" title="扩缩容是 Serverless 最核心的系统能力之一"></a>扩缩容是 Serverless 最核心的系统能力之一</h2><p>如果说 Serverless 对开发者最有吸引力的地方是“自动扩缩容”，那对平台本身来说，这反而是最难做的部分之一。</p>
+<p>一般两类常见思路。</p>
+<h3 id="1-Node-维度调度"><a href="#1-Node-维度调度" class="headerlink" title="1. Node 维度调度"></a>1. Node 维度调度</h3><p>这种模式更偏平台内部调度逻辑：</p>
+<ul>
+<li>Scheduler 负责请求路由</li>
+<li>Local Controller 管理节点上的函数实例生命周期</li>
+<li>AutoScaler 决定整体扩缩容</li>
+</ul>
+<p>平台通过统计节点上闲置和占用状态，来判断是否扩容或回收。</p>
+<img src="/2023/06/25/serverless-intro/autoscaling-node-level.png" class="" title="Node 维度扩缩容图">
+
+<h3 id="2-Pod-维度扩缩容"><a href="#2-Pod-维度扩缩容" class="headerlink" title="2. Pod 维度扩缩容"></a>2. Pod 维度扩缩容</h3><p>在 Kubernetes 生态里，更常见的讨论会落在 Pod 维度。</p>
+<p>但普通 HPA 直接套在 Serverless 上其实不完全合适，因为 Serverless 允许缩到 0，而 HPA 传统上依赖已有 Pod 指标来决策。</p>
+<p>所以像 Knative 这类体系，会引入自己的扩缩容方案，比如 KPA，用 Revision、Queue Proxy、Activator 等组件来承接从 0 到 1 的启动过程，以及流量统计与扩缩容判断。</p>
+<img src="/2023/06/25/serverless-intro/autoscaling-kpa.png" class="" title="Knative KPA 扩缩容图">
+
+<h2 id="流量转发和流量分流，决定了它能不能优雅上线"><a href="#流量转发和流量分流，决定了它能不能优雅上线" class="headerlink" title="流量转发和流量分流，决定了它能不能优雅上线"></a>流量转发和流量分流，决定了它能不能优雅上线</h2><p>Serverless 并不只是“函数能跑起来”这么简单。要真正支撑生产，还要解决流量怎么进、怎么分、怎么切版本。</p>
+<p>比如在 Knative 这类架构里，Route、Configuration、Revision 这些概念配合起来，才能实现：</p>
+<ul>
+<li>新版本发布</li>
+<li>流量切换</li>
+<li>灰度验证</li>
+<li>回滚控制</li>
+</ul>
+<img src="/2023/06/25/serverless-intro/traffic-routing.png" class="" title="流量转发图">
+
+<img src="/2023/06/25/serverless-intro/traffic-splitting-1.png" class="" title="流量分流图一">
+
+<img src="/2023/06/25/serverless-intro/traffic-splitting-2.png" class="" title="流量分流图二">
+
+<h2 id="Serverless-不是什么都好，它也有很现实的限制"><a href="#Serverless-不是什么都好，它也有很现实的限制" class="headerlink" title="Serverless 不是什么都好，它也有很现实的限制"></a>Serverless 不是什么都好，它也有很现实的限制</h2><p>Serverless 的限制同样非常明确。</p>
+<h3 id="1-它天然更依赖第三方服务"><a href="#1-它天然更依赖第三方服务" class="headerlink" title="1. 它天然更依赖第三方服务"></a>1. 它天然更依赖第三方服务</h3><p>Serverless 之所以“轻”，很多时候是因为把能力托管出去了。但这也意味着，你对云产品、托管服务和平台 API 的依赖会更重。</p>
+<h3 id="2-对底层硬件控制能力有限"><a href="#2-对底层硬件控制能力有限" class="headerlink" title="2. 对底层硬件控制能力有限"></a>2. 对底层硬件控制能力有限</h3><p>如果你的应用对硬件规格、网络拓扑、GPU&#x2F;本地盘等有强定制需求，Serverless 可能并不是最优解。</p>
+<h3 id="3-函数间通信效率不一定高"><a href="#3-函数间通信效率不一定高" class="headerlink" title="3. 函数间通信效率不一定高"></a>3. 函数间通信效率不一定高</h3><p>一旦应用被拆得过碎，函数之间的通信、状态管理和排障复杂度会迅速上升。</p>
+<h3 id="4-调试并不总是轻松"><a href="#4-调试并不总是轻松" class="headerlink" title="4. 调试并不总是轻松"></a>4. 调试并不总是轻松</h3><p>本地调试环境、云端运行环境、事件上下文、异步调用链路，这些东西一叠起来，排问题时很容易让人脑壳疼。</p>
+<h3 id="5-不同服务商实现并不统一"><a href="#5-不同服务商实现并不统一" class="headerlink" title="5. 不同服务商实现并不统一"></a>5. 不同服务商实现并不统一</h3><p>Runtime、触发器模型、部署方式、限制项都可能不同，迁移成本并不低。</p>
+<h3 id="6-云厂商绑定是真问题"><a href="#6-云厂商绑定是真问题" class="headerlink" title="6. 云厂商绑定是真问题"></a>6. 云厂商绑定是真问题</h3><p>Serverless 最大的便利之一，往往也是最大的锁定来源。</p>
+<h2 id="安全性不能因为“托管”就放松"><a href="#安全性不能因为“托管”就放松" class="headerlink" title="安全性不能因为“托管”就放松"></a>安全性不能因为“托管”就放松</h2><p>很多人容易有个错觉：既然 Serverless 是平台托管，那安全就都是云厂商的事。</p>
+<p>这想法挺危险。</p>
+<p>平台确实接管了底层环境，但你自己的函数逻辑、依赖、权限配置、事件来源校验、第三方调用链，这些风险一样在。</p>
+<p>尤其当函数会直接处理用户输入、调用外部资源、或者执行高权限操作时，安全边界不仅没有消失，反而可能因为触发路径变多而更复杂。</p>
+<img src="/2023/06/25/serverless-intro/security.png" class="" title="安全性示意图">
+
+<h2 id="最后该怎么理解-Serverless？"><a href="#最后该怎么理解-Serverless？" class="headerlink" title="最后该怎么理解 Serverless？"></a>最后该怎么理解 Serverless？</h2><p><strong>Serverless 不是“没有服务器”，而是“尽量别让业务团队围着服务器转”。</strong></p>
+<p>它特别适合：</p>
+<ul>
+<li>事件驱动场景</li>
+<li>波峰波谷明显的业务</li>
+<li>快速试错和迭代</li>
+<li>希望降低基础设施管理成本的团队</li>
+</ul>
+<p>但它也不适合被神化。</p>
+<p>一旦业务开始追求极致性能、强控制力、稳定长连接、复杂状态管理或者跨平台一致性，Serverless 的边界就会逐渐显现出来。</p>
+<p>所以真正成熟的看法，不是“Serverless 会不会替代传统架构”，而是：</p>
+<p><strong>哪些问题应该交给它解决，哪些问题不该硬塞给它。</strong></p>
+<p>把这件事想明白，比记住一堆定义有用得多。</p>
+</div><div class="tags"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Architecture/" rel="tag">Architecture</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Cloud-Computing/" rel="tag">Cloud Computing</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FaaS/" rel="tag">FaaS</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Serverless/" rel="tag">Serverless</a></li></ul></div><div class="post-nav"><a class="pre" href="/2025/07/30/a2a-protocol-guide/">A2A协议调研</a><a class="next" href="/2016/09/06/%E5%93%88%E5%B8%8C%E5%8A%A0%E5%AF%86%E5%9C%A8%E7%94%A8%E6%88%B7%E5%AF%86%E7%A0%81%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/">哈希加密在用户密码中的应用</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.baidu.com/baidu" method="get" accept-charset="utf-8" target="_blank"><input type="search" name="word" maxlength="20" placeholder="Search"/><input type="hidden" name="si" value="http://theonie.github.io"/><input name="tn" type="hidden" value="bds"/><input name="cl" type="hidden" value="3"/><input name="ct" type="hidden" value="2097152"/><input name="s" type="hidden" value="on"/></form></div><div class="widget"><div class="author-info"><a class="info-avatar" href="/about/" title="关于"><img class="nofancybox" src="/img/avatar.png"/></a><p></p></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI-Engineering/">AI Engineering</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/AI-Infra/">AI Infra</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Cloud-Native/">Cloud Native</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/AI/" style="font-size: 15px;">AI</a> <a href="/tags/Agent/" style="font-size: 15px;">Agent</a> <a href="/tags/A2A/" style="font-size: 15px;">A2A</a> <a href="/tags/MCP/" style="font-size: 15px;">MCP</a> <a href="/tags/%E5%A5%87%E8%91%A9BUG/" style="font-size: 15px;">奇葩BUG</a> <a href="/tags/LLM/" style="font-size: 15px;">LLM</a> <a href="/tags/Context-Engineering/" style="font-size: 15px;">Context Engineering</a> <a href="/tags/Manus/" style="font-size: 15px;">Manus</a> <a href="/tags/%E6%88%91%E7%9A%84%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E6%97%A5%E8%AE%B0/" style="font-size: 15px;">我的博客搭建日记</a> <a href="/tags/Serverless/" style="font-size: 15px;">Serverless</a> <a href="/tags/Cloud-Computing/" style="font-size: 15px;">Cloud Computing</a> <a href="/tags/FaaS/" style="font-size: 15px;">FaaS</a> <a href="/tags/Architecture/" style="font-size: 15px;">Architecture</a> <a href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6%E7%9B%B8%E5%85%B3/" style="font-size: 15px;">密码学相关</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2025/08/18/context-engineering-for-ai-agents/">为什么 AI Agent 不是上下文越长越强：从 Manus 实践看上下文工程</a></li><li class="post-list-item"><a class="post-list-link" href="/2025/07/30/a2a-protocol-guide/">A2A协议调研</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/06/25/serverless-intro/">Serverless 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/06/%E5%93%88%E5%B8%8C%E5%8A%A0%E5%AF%86%E5%9C%A8%E7%94%A8%E6%88%B7%E5%AF%86%E7%A0%81%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/">哈希加密在用户密码中的应用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/16/hexo%E5%8D%9A%E5%AE%A2mac%E7%89%88%E5%AE%89%E8%A3%85%E5%8F%8A%E8%BF%81%E7%A7%BB/">hexo博客mac版安装及迁移</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/26/%E5%85%B3%E4%BA%8EWebView-%E6%88%91%E8%B8%A9%E8%BF%87%E7%9A%84%E9%82%A3%E4%BA%9B%E5%9D%91/">关于WebView-我踩过的那些坑</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/11/android.view.InflateException%E7%9A%84%E9%97%AE%E9%A2%98/">android.view.InflateException的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/04/hexo%E5%8D%9A%E5%AE%A2%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E5%85%A5%E9%97%A8%E7%AF%87/">hexo博客快速搭建(入门篇)</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2026 <a href="/." rel="nofollow">学而无涯.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.css"><script type="text/javascript" color="0,0,0" opacity="0.5" zIndex="-2" count="50" src="https://unpkg.com/canvas-nest.js/dist/canvas-nest.js"></script><script type="text/javascript" src="/js/copycode.js?v=1.0.0" successtext="复制成功！"></script><link rel="stylesheet" type="text/css" href="/css/copycode.css?v=1.0.0"><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description"><title>为什么 AI Agent 不是上下文越长越强：从 Manus 实践看上下文工程 | 学而无涯</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=1.0.0"><link rel="stylesheet" type="text/css" href="https://unpkg.com/normalize.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/pure-min.css"><link rel="stylesheet" type="text/css" href="https://unpkg.com/purecss/build/grids-responsive-min.css"><link rel="stylesheet" href="https://unpkg.com/font-awesome@4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="https://unpkg.com/jquery/dist/jquery.min.js"></script><link rel="icon" mask="" sizes="any" href="/favicon.ico"><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="https://unpkg.com/clipboard/dist/clipboard.min.js"></script><script type="text/javascript" src="https://unpkg.com/toastr/build/toastr.min.js"></script><link rel="stylesheet" href="https://unpkg.com/toastr/build/toastr.min.css"><div class="darkmode-toggle">🌓</div><script>var prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
+var toggle = document.querySelector('.darkmode-toggle');
+var html = document.querySelector('html');
+
+html.dataset.dark = localStorage.dark || prefersDarkMode.matches;
+
+toggle.addEventListener('click', () => {
+localStorage.dark = !(html.dataset.dark == 'true');
+html.dataset.dark = localStorage.dark;
+});</script><meta name="generator" content="Hexo 6.2.0"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">为什么 AI Agent 不是上下文越长越强：从 Manus 实践看上下文工程</h1><a id="logo" href="/.">学而无涯</a><p class="description"></p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a><a href="/about/"><i class="fa fa-user"> 关于</i></a><a href="/atom.xml"><i class="fa fa-rss"> 订阅</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">为什么 AI Agent 不是上下文越长越强：从 Manus 实践看上下文工程</h1><div class="post-meta">2025-08-18<span> | </span><span class="category"><a href="/categories/AI-Engineering/">AI Engineering</a></span></div><div class="post-content"><p>这两年，大模型的上下文窗口越做越大，很多人也自然形成了一种直觉：<strong>窗口越大，Agent 就越聪明，系统就越稳定。</strong></p>
+<p>但真把 Agent 放进复杂任务里跑一段时间，你很快会发现，事情根本不是这么回事。</p>
+<p>上下文变长，确实意味着模型能“看到”的东西更多；但与此同时，噪音也更多，冲突也更多，注意力也更容易跑偏。一个没有经过管理的上下文，并不会自动变成优势，反而很容易把系统拖进一种高成本、低质量、难调试的状态。</p>
+<p>这也是为什么“上下文工程”（Context Engineering）正在变得越来越重要。</p>
+<p>如果说提示工程解决的是“怎么把一句话说清楚”，那上下文工程解决的就是另一层问题：<strong>在一个持续运行、会调用工具、会执行长链任务的 Agent 系统里，应该把什么信息留在上下文里，又该把什么东西移出去。</strong></p>
+<p>最近读完《How to Fix Your Context》以及 Manus 团队关于上下文工程的实践总结后，一个很明确的感受是：<strong>上下文的核心问题，从来不是塞得不够多，而是管得不够好。</strong></p>
+<h2 id="上下文真正的问题，不是容量，而是失控"><a href="#上下文真正的问题，不是容量，而是失控" class="headerlink" title="上下文真正的问题，不是容量，而是失控"></a>上下文真正的问题，不是容量，而是失控</h2><p>很多人一提到上下文问题，第一反应都是“窗口不够大”。</p>
+<p>但从工程角度看，这往往只是表象。真正更棘手的问题其实是：<strong>随着上下文变长，模型的注意力开始失效。</strong></p>
+<p>它可能记得很多东西，却不再能稳定地抓住真正重要的东西。于是系统开始出现一系列表面不同、实则同源的问题。</p>
+<h3 id="1-上下文污染"><a href="#1-上下文污染" class="headerlink" title="1. 上下文污染"></a>1. 上下文污染</h3><p>这是最危险的一种情况。</p>
+<p>如果模型在某一轮推理里产生了幻觉，或者做出了错误判断，而这些错误又被继续保留在上下文里，后面的轮次就可能把这些错误当成既成事实反复引用。久而久之，整个推理链条会在错误前提上不断自我加固。</p>
+<p>这类问题最麻烦的地方在于，它不是一次性报错，而是会像把一滴墨水滴进清水里一样，慢慢把整个上下文染脏。</p>
+<h3 id="2-上下文干扰"><a href="#2-上下文干扰" class="headerlink" title="2. 上下文干扰"></a>2. 上下文干扰</h3><p>当上下文里堆了太多历史记录、工具定义、检索结果和中间过程时，模型并不会自动把重点挑出来。</p>
+<p>现实往往正相反：它会被大量近似相关的信息吸走注意力，真正关键的目标和约束反而被淹没。很多长任务失败，不是因为模型“不会”，而是因为它已经被上下文拖偏了。</p>
+<h3 id="3-上下文混淆"><a href="#3-上下文混淆" class="headerlink" title="3. 上下文混淆"></a>3. 上下文混淆</h3><p>混淆通常来自“看起来都有关，但其实没必要一起出现”的信息。</p>
+<p>最典型的就是工具配置。工具一多，描述一重叠，模型就会开始犹豫：到底该调用哪个？如果工具数量继续膨胀，最终结果往往不是能力更强，而是选择更乱。</p>
+<h3 id="4-上下文冲突"><a href="#4-上下文冲突" class="headerlink" title="4. 上下文冲突"></a>4. 上下文冲突</h3><p>长流程任务中，信息是分阶段进入系统的。问题在于，前面阶段生成的不完整推理、试探性回答、错误判断，常常会和后面拿到的更完整信息发生冲突。</p>
+<p>一旦这些“历史包袱”都留在同一条上下文里，模型就很容易在多个互相矛盾的信号之间来回摇摆，最后输出一个不够稳定的结果。</p>
+<h2 id="别把上下文当仓库，更应该把它当运行时环境"><a href="#别把上下文当仓库，更应该把它当运行时环境" class="headerlink" title="别把上下文当仓库，更应该把它当运行时环境"></a>别把上下文当仓库，更应该把它当运行时环境</h2><p>上下文不是一个被动的容器，不是“把信息往里堆”这么简单。它更像是一个<strong>运行时环境</strong>：</p>
+<ul>
+<li>它决定模型此刻能看到什么</li>
+<li>它影响模型把注意力放到哪里</li>
+<li>它会塑造模型的行为路径</li>
+<li>它甚至会决定模型接下来犯什么错</li>
+</ul>
+<p>换句话说，上下文管理不是文档整理，而是系统设计。</p>
+<p>这也是为什么真正有效的上下文工程，关注点不会停留在“能不能塞更多 token”，而是会转向几个更现实的问题：</p>
+<ul>
+<li>哪些信息必须进主上下文？</li>
+<li>哪些信息应该外置？</li>
+<li>哪些历史应该保留，哪些应该裁剪？</li>
+<li>模型此刻最应该关注什么？</li>
+</ul>
+<h2 id="Manus-给出的几个很硬的启发"><a href="#Manus-给出的几个很硬的启发" class="headerlink" title="Manus 给出的几个很硬的启发"></a>Manus 给出的几个很硬的启发</h2><p>Manus 的实践之所以值得看，不是因为它讲了很多新概念，而是因为它把一些容易被忽略的工程事实讲明白了。</p>
+<h3 id="第一，稳定结构比灵活切换更重要"><a href="#第一，稳定结构比灵活切换更重要" class="headerlink" title="第一，稳定结构比灵活切换更重要"></a>第一，稳定结构比灵活切换更重要</h3><p>直觉上，很多人会觉得工具配置应该尽量动态：任务变了，就删掉旧工具、换上新工具，看起来非常灵活。</p>
+<p>但问题是，大多数模型的 KV Cache 都依赖上下文前缀的稳定性。一旦你频繁改动工具定义，缓存就会失效，成本和延迟立刻上来，模型行为也更容易漂。</p>
+<p>Manus 的思路更务实：<strong>结构尽量保持不变，行为再做动态控制。</strong></p>
+<p>也就是说，不一定要通过修改 Prompt 告诉模型“你现在只能用这些工具”，而可以保留一套稳定的工具全集，再通过掩码、预填充等方式限制当前可用范围。</p>
+<p>这套思路的关键，不只是节省 token，更重要的是让系统在长流程任务里保持可预测。</p>
+<h3 id="第二，错误不是垃圾，而是高价值信号"><a href="#第二，错误不是垃圾，而是高价值信号" class="headerlink" title="第二，错误不是垃圾，而是高价值信号"></a>第二，错误不是垃圾，而是高价值信号</h3><p>很多系统一发现模型走偏，就本能地想“把错的删掉”。</p>
+<p>但从 Agent 设计角度看，错误往往不是应该被清空的噪音，而是系统修正自身的重要依据。你如果把失败轨迹全部擦掉，相当于把模型曾经走错的证据也一并删了。</p>
+<p>更合理的做法不是让错误继续污染主上下文，而是把这些失败记录<strong>卸载到外部存储</strong>，在需要时作为总结和反思的材料重新引用。</p>
+<p>这就引出了另一个关键策略：上下文卸载。</p>
+<h3 id="第三，长任务几乎一定要依赖外部记忆"><a href="#第三，长任务几乎一定要依赖外部记忆" class="headerlink" title="第三，长任务几乎一定要依赖外部记忆"></a>第三，长任务几乎一定要依赖外部记忆</h3><p>只靠主上下文硬扛长流程任务，通常撑不久。</p>
+<p>无论是 Anthropic 提出的 think&#x2F;scratchpad 思路，还是 Manus 把文件系统当作长期工作空间，本质上都在做同一件事：<strong>把中间状态、失败记录、文档内容、分析过程这些东西移出主上下文。</strong></p>
+<p>主上下文负责即时决策，外部存储负责长期承载。两者分工明确，系统才容易稳定。</p>
+<p>这件事非常像人在做复杂工作时的习惯：脑子里只保留当前最重要的判断，其他内容写到便签、文档、任务板里。真正高效的系统，不是把一切都记在脑子里，而是知道什么该留在脑子里。</p>
+<h3 id="第四，任务清单本身就是注意力控制器"><a href="#第四，任务清单本身就是注意力控制器" class="headerlink" title="第四，任务清单本身就是注意力控制器"></a>第四，任务清单本身就是注意力控制器</h3><p>Manus 有个很有意思的实践：用一个简单的 <code>todo.md</code> 来维持长任务流程。</p>
+<p>表面上看，这只是任务管理；但从上下文工程角度看，它其实是在不断把当前目标、状态和下一步动作重写到上下文末尾。由于模型天然对近期内容更敏感，这种重复复述会显著降低目标漂移的概率。</p>
+<p>说白了，待办清单不只是给人看的，也是在给模型“拉注意力”。</p>
+<h2 id="真正有用的上下文管理策略"><a href="#真正有用的上下文管理策略" class="headerlink" title="真正有用的上下文管理策略"></a>真正有用的上下文管理策略</h2><p>压缩成工程视角，可以总结成六件事。</p>
+<h2 id="1-RAG-的重点不是多，而是准"><a href="#1-RAG-的重点不是多，而是准" class="headerlink" title="1. RAG 的重点不是多，而是准"></a>1. RAG 的重点不是多，而是准</h2><p>RAG 最容易踩的坑，就是“查到了就全塞进去”。</p>
+<p>但真正有效的 RAG，从来不是信息搬运，而是语义增强。你不是要把所有相关资料都倒给模型，而是要把<strong>当前任务最需要的那一部分</strong>，用模型最容易吸收的方式送进去。</p>
+<p>更进一步的做法，是不要把完整内容都塞进上下文，而只保留：</p>
+<ul>
+<li>信息路径</li>
+<li>摘要</li>
+<li>获取方式</li>
+</ul>
+<p>这样模型知道“信息在哪里”，需要时再取，而不是一开始就被细节淹没。</p>
+<h2 id="2-工具不是越多越强，越多越容易乱"><a href="#2-工具不是越多越强，越多越容易乱" class="headerlink" title="2. 工具不是越多越强，越多越容易乱"></a>2. 工具不是越多越强，越多越容易乱</h2><p>给 Agent 加工具当然是必要的，但工具集合不能失控。</p>
+<p>如果工具名相似、描述重叠、可选项太多，模型会把大量注意力耗在“到底该选哪个”上。结果就是能力看似丰富，实际成功率反而下降。</p>
+<p>所以工具管理的原则不是堆满，而是收敛：</p>
+<ul>
+<li>只暴露当前阶段真正相关的工具能力</li>
+<li>工具命名保持清晰、一致、可分组</li>
+<li>尽量让结构稳定，别反复改前缀和定义</li>
+</ul>
+<h2 id="3-复杂任务要拆线程，而不是堆一锅"><a href="#3-复杂任务要拆线程，而不是堆一锅" class="headerlink" title="3. 复杂任务要拆线程，而不是堆一锅"></a>3. 复杂任务要拆线程，而不是堆一锅</h2><p>一个大任务里经常混着多个子问题：查资料、写分析、调接口、做验证、整理结论。</p>
+<p>如果所有过程都塞进一条上下文里，冲突和混淆几乎不可避免。更稳的方法，是把任务拆成多个逻辑线程，让不同子任务在各自独立的上下文里运行。</p>
+<p>这也是多智能体、多阶段流水线设计的一个根本价值：<strong>不是为了炫技，而是为了隔离噪音。</strong></p>
+<h2 id="4-给模型准备一个外部便笺簿"><a href="#4-给模型准备一个外部便笺簿" class="headerlink" title="4. 给模型准备一个外部便笺簿"></a>4. 给模型准备一个外部便笺簿</h2><p>这是最值得尽快落地的一条。</p>
+<p>无论是文件系统、数据库、临时工作区，还是一个 scratchpad 工具，本质上都在帮助模型把不该长期占据主上下文的内容挪出去。</p>
+<p>比如：</p>
+<ul>
+<li>原始网页内容</li>
+<li>长文档全文</li>
+<li>中间分析过程</li>
+<li>错误日志</li>
+<li>多轮尝试记录</li>
+</ul>
+<p>这些东西都可以外置。模型只需要在当前轮次里引用必要摘要，而不是把整堆历史一直背在身上跑。</p>
+<h2 id="5-修剪和总结的目标，是重新分配注意力"><a href="#5-修剪和总结的目标，是重新分配注意力" class="headerlink" title="5. 修剪和总结的目标，是重新分配注意力"></a>5. 修剪和总结的目标，是重新分配注意力</h2><p>很多人把 summary 当成“压缩 token”的技巧，其实这只是表层收益。</p>
+<p>更关键的是，总结能帮助模型重新聚焦：</p>
+<ul>
+<li>当前目标是什么</li>
+<li>已完成了什么</li>
+<li>还剩什么没做</li>
+<li>哪些历史结论仍然有效</li>
+</ul>
+<p>高质量总结不是缩写版聊天记录，而是一次主动的注意力重排。</p>
+<h2 id="6-少样本示例也会把模型带进沟里"><a href="#6-少样本示例也会把模型带进沟里" class="headerlink" title="6. 少样本示例也会把模型带进沟里"></a>6. 少样本示例也会把模型带进沟里</h2><p>模型很擅长模仿。问题是，它有时候模仿得太认真了。</p>
+<p>如果你在上下文里反复给出相似结构、相似动作、相似节奏，模型很容易进入惯性，机械重复之前的路径，而不再根据当前状态做调整。</p>
+<p>所以在重复性任务里，保留少量受控变化反而是好事。适度打破节奏，能让模型从“照着演”切回“重新判断”。</p>
+<h2 id="对做-Agent-的人来说，最重要的心态转变是什么？"><a href="#对做-Agent-的人来说，最重要的心态转变是什么？" class="headerlink" title="对做 Agent 的人来说，最重要的心态转变是什么？"></a>对做 Agent 的人来说，最重要的心态转变是什么？</h2><p><strong>别再把上下文当成越大越好的缓存池，而要把它当成需要精心维护的运行时。</strong></p>
+<p>这意味着你在设计 Agent 时，需要思考的重点不再只是：</p>
+<ul>
+<li>模型够不够强</li>
+<li>窗口够不够大</li>
+<li>提示词写得漂不漂亮</li>
+</ul>
+<p>而是：</p>
+<ul>
+<li>当前轮次真正需要什么信息</li>
+<li>哪些信息应该外置</li>
+<li>历史错误怎么保留但不污染主线程</li>
+<li>如何让目标始终停留在模型近期注意力里</li>
+<li>如何让系统结构稳定，不因为动态变化把自己搞崩</li>
+</ul>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>上下文工程听起来像一个新词，但它解决的问题一点都不新。</p>
+<p>凡是做过复杂系统的人，最后都会遇到类似的挑战：信息越来越多，状态越来越复杂，历史越来越长，系统开始变得不稳定。AI Agent 只是把这件事在大模型时代重新演了一遍。</p>
+<p>区别在于，传统软件的状态管理失控，会带来 bug；而 Agent 的上下文管理失控，带来的往往是更隐蔽的东西：幻觉、漂移、反复横跳、工具误用、以及你明明看不出哪里错了但结果就是不对。</p>
+<p>所以，上下文工程本质上不是“提示技巧”的升级版，而是 Agent 系统设计的一部分。</p>
+<p>真正稳定的 Agent，不是因为它记住了所有东西，而是因为它知道：<strong>什么该记，什么该忘，什么该移出去，什么该被再次强调。</strong></p>
+</div><div class="tags"><ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AI/" rel="tag">AI</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Agent/" rel="tag">Agent</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Context-Engineering/" rel="tag">Context Engineering</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/LLM/" rel="tag">LLM</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Manus/" rel="tag">Manus</a></li></ul></div><div class="post-nav"><a class="next" href="/2025/07/30/a2a-protocol-guide/">A2A协议调研</a></div></div></div></div><div class="pure-u-1-4 hidden_mid_and_down"><div id="sidebar"><div class="widget"><form class="search-form" action="//www.baidu.com/baidu" method="get" accept-charset="utf-8" target="_blank"><input type="search" name="word" maxlength="20" placeholder="Search"/><input type="hidden" name="si" value="http://theonie.github.io"/><input name="tn" type="hidden" value="bds"/><input name="cl" type="hidden" value="3"/><input name="ct" type="hidden" value="2097152"/><input name="s" type="hidden" value="on"/></form></div><div class="widget"><div class="author-info"><a class="info-avatar" href="/about/" title="关于"><img class="nofancybox" src="/img/avatar.png"/></a><p></p></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/AI-Engineering/">AI Engineering</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/AI-Infra/">AI Infra</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Cloud-Native/">Cloud Native</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/AI/" style="font-size: 15px;">AI</a> <a href="/tags/Agent/" style="font-size: 15px;">Agent</a> <a href="/tags/A2A/" style="font-size: 15px;">A2A</a> <a href="/tags/MCP/" style="font-size: 15px;">MCP</a> <a href="/tags/%E5%A5%87%E8%91%A9BUG/" style="font-size: 15px;">奇葩BUG</a> <a href="/tags/LLM/" style="font-size: 15px;">LLM</a> <a href="/tags/Context-Engineering/" style="font-size: 15px;">Context Engineering</a> <a href="/tags/Manus/" style="font-size: 15px;">Manus</a> <a href="/tags/%E6%88%91%E7%9A%84%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E6%97%A5%E8%AE%B0/" style="font-size: 15px;">我的博客搭建日记</a> <a href="/tags/Serverless/" style="font-size: 15px;">Serverless</a> <a href="/tags/Cloud-Computing/" style="font-size: 15px;">Cloud Computing</a> <a href="/tags/FaaS/" style="font-size: 15px;">FaaS</a> <a href="/tags/Architecture/" style="font-size: 15px;">Architecture</a> <a href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6%E7%9B%B8%E5%85%B3/" style="font-size: 15px;">密码学相关</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2025/08/18/context-engineering-for-ai-agents/">为什么 AI Agent 不是上下文越长越强：从 Manus 实践看上下文工程</a></li><li class="post-list-item"><a class="post-list-link" href="/2025/07/30/a2a-protocol-guide/">A2A协议调研</a></li><li class="post-list-item"><a class="post-list-link" href="/2023/06/25/serverless-intro/">Serverless 入门</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/09/06/%E5%93%88%E5%B8%8C%E5%8A%A0%E5%AF%86%E5%9C%A8%E7%94%A8%E6%88%B7%E5%AF%86%E7%A0%81%E4%B8%AD%E7%9A%84%E5%BA%94%E7%94%A8/">哈希加密在用户密码中的应用</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/06/16/hexo%E5%8D%9A%E5%AE%A2mac%E7%89%88%E5%AE%89%E8%A3%85%E5%8F%8A%E8%BF%81%E7%A7%BB/">hexo博客mac版安装及迁移</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/26/%E5%85%B3%E4%BA%8EWebView-%E6%88%91%E8%B8%A9%E8%BF%87%E7%9A%84%E9%82%A3%E4%BA%9B%E5%9D%91/">关于WebView-我踩过的那些坑</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/11/android.view.InflateException%E7%9A%84%E9%97%AE%E9%A2%98/">android.view.InflateException的问题</a></li><li class="post-list-item"><a class="post-list-link" href="/2016/01/04/hexo%E5%8D%9A%E5%AE%A2%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E5%85%A5%E9%97%A8%E7%AF%87/">hexo博客快速搭建(入门篇)</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2026 <a href="/." rel="nofollow">学而无涯.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=1.0.0" async></script><script type="text/javascript" src="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=1.0.0" async></script><link rel="stylesheet" type="text/css" href="https://unpkg.com/@fancyapps/fancybox/dist/jquery.fancybox.min.css"><script type="text/javascript" color="0,0,0" opacity="0.5" zIndex="-2" count="50" src="https://unpkg.com/canvas-nest.js/dist/canvas-nest.js"></script><script type="text/javascript" src="/js/copycode.js?v=1.0.0" successtext="复制成功！"></script><link rel="stylesheet" type="text/css" href="/css/copycode.css?v=1.0.0"><script type="text/javascript" src="/js/codeblock-resizer.js?v=1.0.0"></script><script type="text/javascript" src="/js/smartresize.js?v=1.0.0"></script></div></body></html>
